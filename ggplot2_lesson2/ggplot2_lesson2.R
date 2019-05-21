@@ -23,7 +23,7 @@ wt.cyl.am +
 # Plot 2: Mean and SD - the easy way
 wt.cyl.am +
   geom_point(position = posn.jd, alpha = 0.6)+
-  stat_summary(fun.data = mean_sdl, 
+  stat_summary(fun.data = mean_sdl,
                position =posn.d,
                fun.args = list(mult=1))
 
@@ -75,13 +75,13 @@ wt.cyl.am <- ggplot(mtcars, aes(x = cyl,y = wt, col = am, fill = am, group = am)
 # Add three stat_summary calls to wt.cyl.am
 wt.cyl.am +
   #1
-  stat_summary(geom = 'linerange', 
+  stat_summary(geom = 'linerange',
                fun.data = med_IQR,
-               position = posn.d, 
+               position = posn.d,
                size = 3) +
   #2
-  stat_summary(geom = 'linerange', 
-               position = posn.d, 
+  stat_summary(geom = 'linerange',
+               position = posn.d,
                size = 3,
                alpha = 0.4,
                fun.data = gg_range) +
@@ -110,8 +110,8 @@ wide.bar +
   coord_polar(theta = 'y')
 
 # Create stacked bar plot: thin.bar
-thin.bar <- ggplot(mtcars, 
-                   aes(x = 1, 
+thin.bar <- ggplot(mtcars,
+                   aes(x = 1,
                        fill = cyl)) +
   geom_bar(width = 0.1) +
   scale_x_continuous(limits = c(0.5,1.5))
@@ -119,7 +119,7 @@ thin.bar <- ggplot(mtcars,
 
 
 # Convert thin.bar to "ring" type pie chart
-thin.bar + 
+thin.bar +
   coord_polar(theta = 'y')
 
 
@@ -135,7 +135,7 @@ p +
 p +
   facet_grid(. ~ cyl)
 
-# 3 - Separate by both columns and rows 
+# 3 - Separate by both columns and rows
 p +
   facet_grid(am ~ cyl)
 
@@ -182,8 +182,8 @@ p +
 
 # Specify scale and space arguments to free up rows
 p +
-  facet_grid(vore ~ ., 
-             scale= 'free_y', 
+  facet_grid(vore ~ .,
+             scale= 'free_y',
              space = 'free_y')
 
 
@@ -323,6 +323,229 @@ theme_set(custom_theme)
 # Plot z2 again
 z2
 
+# Base layers
+m <- ggplot(mtcars, aes(x = cyl, y = wt))
+
+# Draw dynamite plot
+m +
+  stat_summary(fun.y = mean, geom = 'bar', fill = 'skyblue') +
+  stat_summary(fun.data = mean_sdl, fun.args = list(mult = 1), geom = "errorbar", width = 0.1)
+
+# Base layers
+m <- ggplot(mtcars, aes(x = cyl,y = wt, col = am, fill = am))
+
+# Plot 1: Draw dynamite plot
+m +
+  stat_summary(fun.y = mean, geom = "bar") +
+  stat_summary(fun.data = mean_sdl, fun.args = list(mult = 1), geom = "errorbar", width = 0.1)
+
+# Plot 2: Set position dodge in each stat function
+m +
+  stat_summary(fun.y = mean, geom = "bar", position = 'dodge') +
+  stat_summary(fun.data = mean_sdl, fun.args = list(mult = 1),
+               geom = "errorbar", width = 0.1, position = 'dodge')
+
+# Set your dodge posn manually
+posn.d <- position_dodge(0.9)
+
+# Plot 3: Redraw dynamite plot
+m +
+  stat_summary(fun.y = mean, geom = "bar", position = posn.d) +
+  stat_summary(fun.data = mean_sdl, fun.args = list(mult = 1), geom = "errorbar", width = 0.1, position = posn.d)
+
+
+mtcars.cyl
+
+# Base layers
+m <- ggplot(mtcars.cyl, aes(x = cyl, y = wt.avg))
+
+# Plot 1: Draw bar plot with geom_bar
+m + geom_bar(stat = 'identity', fill = 'skyblue')
+
+# Plot 2: Draw bar plot with geom_col
+m + geom_col(fill = 'skyblue')
+
+# Plot 3: geom_col with variable widths.
+m + geom_col(fill = 'skyblue',  width = mtcars.cyl$prop)
+
+# Plot 4: Add error bars
+m +
+  geom_col(fill = 'skyblue',  width = mtcars.cyl$prop) +
+  geom_errorbar(aes(ymin = wt.avg - sd,
+                    ymax = wt.avg + sd), width = 0.1)
 
 
 
+##pie charts
+
+#categorical variable as the proportion of another categorical variable
+
+# Bar chart
+ggplot(mtcars, aes(x = cyl, fill = am)) +
+  geom_bar(position = "fill")
+
+# Convert bar chart to pie chart
+ggplot(mtcars, aes(x = factor(1), fill = am)) +
+  geom_bar(position = "fill") +
+  facet_grid(. ~ cyl)   + # Facets
+  coord_polar(theta = 'y')  + # Coordinates
+  theme_void() # theme
+
+
+# Create color palette
+myColors <- brewer.pal(9, "Reds")
+
+# Build the heat map from scratch
+ggplot(barley, aes(x = year, y = variety, fill = yield)) +
+  geom_tile() + # Geom layer
+  facet_wrap( ~ site, ncol = 1) + # Facet layer
+  scale_fill_gradientn(colors= myColors ) # Adjust colors
+
+
+str(barley)
+
+# The heat map we want to replace
+# Don't remove, it's here to help you!
+myColors <- brewer.pal(9, "Reds")
+
+ggplot(barley, aes(x = year, y = variety, fill = yield)) +
+  geom_tile() +
+  facet_wrap( ~ site, ncol = 1) +
+  scale_fill_gradientn(colors = myColors)
+
+# Line plot; set the aes, geom and facet
+
+ggplot(barley, aes(x = year, y = yield, col = variety, group = variety)) +
+  geom_line() +
+  facet_wrap( ~ site, nrow = 1)
+
+
+# Create overlapping ribbon plot from scratch
+str(barley)
+
+
+ggplot(barley, aes(x=year,
+                   y=yield,
+                   col=site,
+                   group=site,
+                   fill=site))+
+  stat_summary(fun.y=mean,
+               geom='line')+
+  stat_summary(fun.data=mean_sdl,
+               fun.args = list(mult=1),
+               geom='ribbon', col=NA, alpha=0.1)
+
+
+# The initial contingency table
+DF <- as.data.frame.matrix(table(adult$SRAGE_P, adult$RBMI))
+
+
+DF
+# Create groupSum, xmax and xmin columns
+DF$groupSum <- rowSums(DF)
+DF$xmax <- cumsum(DF$groupSum)
+DF$xmin <- DF$xmax - DF$groupSum
+
+# The groupSum column needs to be removed; don't remove this line
+DF$groupSum <- NULL
+
+# Copy row names to variable X
+DF$X <- row.names(DF)
+
+
+
+# Melt the dataset
+library(reshape2)
+DF_melted <- melt(DF, id.vars = c('X', 'xmin', 'xmax'), variable.name = 'FILL')
+DF_melted
+
+
+# dplyr call to calculate ymin and ymax - don't change
+library(dplyr)
+DF_melted <- DF_melted %>%
+  group_by(X) %>%
+  mutate(ymax = cumsum(value/sum(value)),
+         ymin = ymax - value/sum(value))
+
+DF_melted
+
+# Plot rectangles - don't change
+library(ggthemes)
+ggplot(DF_melted, aes(ymin = ymin,
+                      ymax = ymax,
+                      xmin = xmin,
+                      xmax = xmax,
+                      fill = FILL)) +
+  geom_rect(colour = "white") +
+  scale_x_continuous(expand = c(0,0)) +
+  scale_y_continuous(expand = c(0,0)) +
+  BMI_fill +
+  theme_tufte()
+
+
+
+# Perform chi.sq test (RBMI and SRAGE_P)
+results <- chisq.test(table(adult$RBMI, adult$SRAGE_P))
+
+# Melt results$residuals and store as resid
+resid <- melt(results$residuals)
+resid
+
+# Change names of resid
+
+
+colnames(resid) <- c('FILL', 'X', 'residual')
+resid
+# merge the two datasets:
+
+head(resid)
+head(DF_melted)
+
+DF_all <- merge(DF_melted, resid)
+head(DF_all)
+
+# Update plot command
+library(ggthemes)
+ggplot(DF_all, aes(ymin = ymin,
+                   ymax = ymax,
+                   xmin = xmin,
+                   xmax = xmax,
+                   fill = residual)) +
+  geom_rect() +
+  scale_fill_gradient2() +
+  scale_x_continuous(expand = c(0,0)) +
+  scale_y_continuous(expand = c(0,0)) +
+  theme_tufte()
+
+
+# Plot so far
+p
+
+# Position for labels on y axis (don't change)
+index <- DF_all$xmax == max(DF_all$xmax)
+DF_all$yposn <- DF_all$ymin[index] + (DF_all$ymax[index] - DF_all$ymin[index])/2
+
+
+head(DF_all)
+# Plot 1: geom_text for BMI (i.e. the fill axis)
+p1 <- p %+% DF_all +
+  geom_text(aes(x = max(xmax),
+                y = yposn,
+                label = FILL),
+            size = 3, hjust = 1,
+            show.legend  = FALSE)
+p1
+
+# Plot 2: Position for labels on x axis
+DF_all$xposn <- DF_all$xmin + (DF_all$xmax - DF_all$xmin)/2
+
+
+
+
+
+# geom_text for ages (i.e. the x axis)
+p1 %+% DF_all +
+  geom_text(aes(x = xposn, label = X),
+            y = 1, angle = 90,
+            size = 3, hjust = 1,
+            show.legend = FALSE)
