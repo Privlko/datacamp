@@ -56,3 +56,26 @@ xyplot(Ozone ~ Temp, airquality, groups = Month,
                    auto.key = list(space = "right", 
                                    title = "Month", 
                                    text = month.name[5:9]))
+
+
+
+# USCancerRates is pre-loaded
+str(USCancerRates)
+
+# Create 'division.ordered' by reordering levels
+library(dplyr)
+USCancerRates <- 
+  mutate(USCancerRates, 
+         division.ordered = reorder(division, 
+                                    rate.male + rate.female, 
+                                    mean, na.rm = TRUE))
+
+# Create conditioned scatter plot
+xyplot(rate.female ~ rate.male | division.ordered,
+       data = USCancerRates, 
+       # Add reference grid
+       grid = TRUE, 
+       # Add reference line
+       abline = c(0, 1))
+
+
