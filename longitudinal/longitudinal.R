@@ -2,7 +2,8 @@
 
 library(nlme)
 library(tidyverse)
-library(lme4)
+
+
 
 head(BodyWeight)
 
@@ -24,8 +25,38 @@ count(calcium, visit)
 count(calcium, group)
 count(calcium, visit, group)
 
-BodyWeight %>%
+tbl_df(BodyWeight) %>%
   mutate(Time = paste0('Time_', Time)) %>%
   spread(Time, weight) %>%
   select(Rat, Diet, Time_1, Time_8, everything())
 
+
+BodyWeight %>% 
+  mutate(Time = paste0('Time_', Time)) %>% 
+  spread(Time, weight) %>% 
+  select(Time_1, Time_8, Time_15:Time_64) %>% 
+  correlate() %>%
+  shave(upper = FALSE) %>%
+  fashion(decimals = 3)
+
+
+## descriptive statistics
+
+BodyWeight %>%
+  group_by(Time) %>%
+  summarize(mean_wgt = mean(weight, na.rm = TRUE),
+            med_wgt = median(weight, na.rm = TRUE),
+            min_wgt = min(weight, na.rm = TRUE),
+            max_wgt = max(weight, na.rm = TRUE),
+            sd_wgt = sd(weight, na.rm = TRUE),
+            num_miss = sum(is.na(weight)),
+            n = n())
+
+
+##visualising descriptives
+
+ggplot(BodyWeight, aes(x = factor(Time), y = weight)) + 
+  geom_violin(aes(fill = Diet)) + 
+  xlab("Time (in days)") + 
+  ylab("Weight") + 
+  theme_bw(base_size = 16)
